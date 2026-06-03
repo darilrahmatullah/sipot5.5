@@ -1,4 +1,4 @@
-import { Layout, Pill, FileDown, FileUp, AlertCircle, Clock, Activity, BarChart } from 'lucide-react';
+import { Pill, FileDown, FileUp, AlertCircle, Clock, Activity, BarChart } from 'lucide-react';
 import { useMasterStore } from '../stores/masterStore';
 import { useTransactionStore } from '../stores/transactionStore';
 import type { MasterObat, Penerimaan, Distribusi } from '../types';

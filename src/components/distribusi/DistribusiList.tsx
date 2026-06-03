@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileUp, Plus, Search, Truck, Filter, Trash2, Download, AlertCircle } from 'lucide-react';
+import { Plus, Search, Truck, Trash2, Download } from 'lucide-react';
 import { useTransactionStore } from '../../stores/transactionStore';
 import { useMasterStore } from '../../stores/masterStore';
 import type { Distribusi, UploadedDocument, MasterObat, MasterJaringan } from '../../types';

@@ -8,7 +8,7 @@ const DashboardJaringan = () => {
     const jaringan = useMasterStore((state) => state.jaringan);
     const obat = useMasterStore((state) => state.obat);
 
-    const { posTransactions, getNetworkStockList, getNetworkStock } = useTransactionStore();
+    const { posTransactions, getNetworkStockList } = useTransactionStore();
 
     if (!activeJaringanId) {
         return <Navigate to="/" replace />;
@@ -110,7 +110,7 @@ const DashboardJaringan = () => {
                         <h2 className="font-bold text-slate-800 text-lg">Transaksi Pelayanan Terakhir</h2>
                     </div>
                     <div className="space-y-4">
-                        {recentActivity.map((tx, i) => (
+                        {recentActivity.map((tx) => (
                             <div key={tx.id} className="flex items-start justify-between p-4 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-xl transition-colors">
                                 <div className="flex items-start gap-3">
                                     <div className="p-2 bg-white rounded-lg shadow-sm text-slate-600">
