@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Pill, ShoppingCart, Activity, AlertCircle, Clock, TrendingUp } from 'lucide-react';
 import { useMasterStore } from '../../stores/masterStore';
 import { useTransactionStore } from '../../stores/transactionStore';
+import KartuStokModal from './KartuStokModal';
 
 const DashboardJaringan = () => {
     const activeJaringanId = useMasterStore((state) => state.activeJaringanId);
@@ -9,6 +11,8 @@ const DashboardJaringan = () => {
     const obat = useMasterStore((state) => state.obat);
 
     const { posTransactions, getNetworkStockList } = useTransactionStore();
+
+    const [selectedObatId, setSelectedObatId] = useState<string | null>(null);
 
     if (!activeJaringanId) {
         return <Navigate to="/" replace />;
@@ -161,7 +165,12 @@ const DashboardJaringan = () => {
                             const o = obat.find((ob) => ob.id === stock.obatId);
                             if (!o) return null;
                             return (
-                                <div key={stock.obatId} className="flex items-center justify-between p-4 bg-amber-50/50 border border-amber-100 rounded-xl">
+                                <div 
+                                    key={stock.obatId} 
+                                    onClick={() => setSelectedObatId(stock.obatId)}
+                                    className="flex items-center justify-between p-4 bg-amber-50/50 hover:bg-amber-50 border border-amber-100 hover:border-amber-200 rounded-xl cursor-pointer transition-all hover:shadow-sm"
+                                    title="Klik untuk melihat Kartu Stok"
+                                >
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 bg-white rounded-lg shadow-sm">
                                             <Pill className="w-4 h-4 text-amber-600" />
@@ -188,6 +197,16 @@ const DashboardJaringan = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Kartu Stok Modal */}
+            {selectedObatId && (
+                <KartuStokModal
+                    isOpen={selectedObatId !== null}
+                    onClose={() => setSelectedObatId(null)}
+                    obatId={selectedObatId}
+                    jaringanId={activeJaringanId}
+                />
+            )}
         </div>
     );
 };

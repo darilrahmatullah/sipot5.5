@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Pill, Search, AlertTriangle, CheckCircle, HelpCircle } from 'lucide-react';
+import { Pill, Search, AlertTriangle, CheckCircle, HelpCircle, History } from 'lucide-react';
 import { useMasterStore } from '../../stores/masterStore';
 import { useTransactionStore } from '../../stores/transactionStore';
+import KartuStokModal from './KartuStokModal';
 
 const StokJaringan = () => {
     const activeJaringanId = useMasterStore((state) => state.activeJaringanId);
@@ -13,6 +14,7 @@ const StokJaringan = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'ALL' | 'LOW' | 'EMPTY'>('ALL');
+    const [selectedObatId, setSelectedObatId] = useState<string | null>(null);
 
     if (!activeJaringanId) {
         return <Navigate to="/" replace />;
@@ -112,7 +114,8 @@ const StokJaringan = () => {
                                 <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500">Satuan</th>
                                 <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500">Min. Stok</th>
                                 <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Stok Unit</th>
-                                <th className="p-4 pr-6 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">Status</th>
+                                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">Status</th>
+                                <th className="p-4 pr-6 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -136,7 +139,7 @@ const StokJaringan = () => {
                                             {item.currentStock}
                                         </span>
                                     </td>
-                                    <td className="p-4 pr-6 text-center">
+                                    <td className="p-4 text-center">
                                         {item.isEmpty ? (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
                                                 <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
@@ -159,12 +162,22 @@ const StokJaringan = () => {
                                             </span>
                                         )}
                                     </td>
+                                    <td className="p-4 pr-6 text-center">
+                                        <button
+                                            onClick={() => setSelectedObatId(item.id)}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-50 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200 hover:border-blue-200 transition-all cursor-pointer"
+                                            title="Lihat Kartu Stok"
+                                        >
+                                            <History className="w-3.5 h-3.5" />
+                                            <span>Kartu Stok</span>
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
 
                             {filteredItems.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="text-center py-12 text-slate-400 italic text-sm">
+                                    <td colSpan={7} className="text-center py-12 text-slate-400 italic text-sm">
                                         Tidak ada data obat yang cocok dengan kriteria filter
                                     </td>
                                 </tr>
@@ -173,6 +186,16 @@ const StokJaringan = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Kartu Stok Modal */}
+            {selectedObatId && (
+                <KartuStokModal
+                    isOpen={selectedObatId !== null}
+                    onClose={() => setSelectedObatId(null)}
+                    obatId={selectedObatId}
+                    jaringanId={activeJaringanId}
+                />
+            )}
         </div>
     );
 };
