@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.PROD 
+  ? 'https://sipot-backend-production.up.railway.app/api' 
+  : 'http://localhost:3001/api';
 
 export class ApiService {
     static async request<T>(path: string, options: RequestInit = {}): Promise<T> {
