@@ -1,6 +1,8 @@
 import { Pill, FileDown, FileUp, AlertCircle, Clock, Activity, BarChart } from 'lucide-react';
 import { useMasterStore } from '../stores/masterStore';
 import { useTransactionStore } from '../stores/transactionStore';
+import { usePagination } from '../hooks/usePagination';
+import Pagination from './common/Pagination';
 import type { MasterObat, Penerimaan, Distribusi } from '../types';
 
 const Dashboard = () => {
@@ -8,6 +10,13 @@ const Dashboard = () => {
     const { penerimaan, distribusi, getStockByObatId } = useTransactionStore();
 
     const lowStockItems = obat.filter((o: MasterObat) => getStockByObatId(o.id) <= o.stokMinimum);
+
+    const {
+        currentPage: lowStockPage,
+        totalPages: lowStockTotalPages,
+        currentData: pagedLowStockItems,
+        goToPage: goToLowStockPage,
+    } = usePagination(lowStockItems, 3);
 
     const stats = [
         {
@@ -106,13 +115,18 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-3 mb-6">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="flex items-center gap-3 p-6 pb-4">
                         <BarChart className="w-5 h-5 text-amber-600" />
                         <h2 className="font-bold text-slate-800 text-lg">Peringatan Stok Kritis</h2>
+                        {lowStockItems.length > 0 && (
+                            <span className="ml-auto text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                {lowStockItems.length} item
+                            </span>
+                        )}
                     </div>
-                    <div className="space-y-4">
-                        {lowStockItems.map((o: MasterObat) => (
+                    <div className="space-y-3 px-6 pb-4 max-h-[300px] overflow-y-auto">
+                        {pagedLowStockItems.map((o: MasterObat) => (
                             <div key={o.id} className="flex items-center justify-between p-4 bg-amber-50/50 border border-amber-100 rounded-xl">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-white rounded-lg shadow-sm">
@@ -133,6 +147,13 @@ const Dashboard = () => {
                             <div className="text-center py-8 text-slate-400 italic text-sm">Semua stok dalam kondisi aman</div>
                         )}
                     </div>
+                    <Pagination
+                        currentPage={lowStockPage}
+                        totalPages={lowStockTotalPages}
+                        onPageChange={goToLowStockPage}
+                        totalItems={lowStockItems.length}
+                        itemsPerPage={3}
+                    />
                 </div>
             </div>
         </div>

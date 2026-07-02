@@ -49,7 +49,7 @@ const Pagination = ({
         return pages;
     };
 
-    if (totalPages <= 1 && (!totalItems || totalItems === 0)) return null;
+    if (!totalItems || totalItems === 0) return null;
 
     return (
         <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 border-t border-slate-100 bg-slate-50/50 gap-4">
