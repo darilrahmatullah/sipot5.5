@@ -4,6 +4,8 @@ import { useMasterStore } from '../../stores/masterStore';
 import type { MasterJaringan as IMasterJaringan } from '../../types';
 import Modal from '../common/Modal';
 import BulkImportModal from '../common/BulkImportModal';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const MasterJaringan = () => {
     const { jaringan, addJaringan, bulkAddJaringan, updateJaringan, deleteJaringan } = useMasterStore();
@@ -20,6 +22,15 @@ const MasterJaringan = () => {
     const filtered = jaringan.filter((j: IMasterJaringan) =>
         j.nama.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedData,
+        goToPage,
+        totalItems
+    } = usePagination(filtered, 10);
+
 
     const handleOpenAdd = () => {
         setEditingJaringan(null);
@@ -87,7 +98,7 @@ const MasterJaringan = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {filtered.map((j: IMasterJaringan) => (
+                        {paginatedData.map((j: IMasterJaringan) => (
                             <tr key={j.id} className="hover:bg-slate-50/50">
                                 <td className="px-6 py-4 font-semibold">{j.nama}</td>
                                 <td className="px-6 py-4">
@@ -105,7 +116,7 @@ const MasterJaringan = () => {
                                 </td>
                             </tr>
                         ))}
-                        {filtered.length === 0 && (
+                        {paginatedData.length === 0 && (
                             <tr>
                                 <td colSpan={3} className="px-6 py-20 text-center opacity-30">
                                     <Network className="w-12 h-12 mx-auto mb-2" />
@@ -116,6 +127,12 @@ const MasterJaringan = () => {
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                totalItems={totalItems}
+            />
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingJaringan ? 'Edit Jaringan' : 'Tambah Jaringan'}>
                 <form onSubmit={handleSubmit} className="space-y-4">

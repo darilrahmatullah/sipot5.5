@@ -5,6 +5,8 @@ import { useMasterStore } from '../../stores/masterStore';
 import type { Distribusi, UploadedDocument, MasterObat, MasterJaringan } from '../../types';
 import Modal from '../common/Modal';
 import FileUpload from '../common/FileUpload';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const DistribusiList = () => {
     const { distribusi, addDistribusi, deleteDistribusi, getStockByObatId } = useTransactionStore();
@@ -26,6 +28,15 @@ const DistribusiList = () => {
         const o = obat.find((ob: MasterObat) => ob.id === d.obatId);
         return o?.nama.toLowerCase().includes(searchTerm.toLowerCase()) || d.nomorPermintaan.toLowerCase().includes(searchTerm.toLowerCase());
     });
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedData,
+        goToPage,
+        totalItems
+    } = usePagination(filtered, 10);
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -92,7 +103,7 @@ const DistribusiList = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {filtered.map((d: Distribusi) => {
+                        {paginatedData.map((d: Distribusi) => {
                             const o = obat.find((ob: MasterObat) => ob.id === d.obatId);
                             const target = jaringan.find((j: MasterJaringan) => j.id === d.tujuanJaringanId);
 
@@ -129,7 +140,7 @@ const DistribusiList = () => {
                                 </tr>
                             );
                         })}
-                        {filtered.length === 0 && (
+                        {paginatedData.length === 0 && (
                             <tr>
                                 <td colSpan={6} className="px-6 py-20 text-center opacity-30">
                                     <Truck className="w-12 h-12 mx-auto mb-2" />
@@ -140,6 +151,12 @@ const DistribusiList = () => {
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                totalItems={totalItems}
+            />
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Tambah Distribusi Baru" maxWidth="4xl">
                 <form onSubmit={handleSubmit} className="space-y-5">

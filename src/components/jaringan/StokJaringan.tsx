@@ -4,6 +4,8 @@ import { Pill, Search, AlertTriangle, CheckCircle, HelpCircle, History } from 'l
 import { useMasterStore } from '../../stores/masterStore';
 import { useTransactionStore } from '../../stores/transactionStore';
 import KartuStokModal from './KartuStokModal';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const StokJaringan = () => {
     const activeJaringanId = useMasterStore((state) => state.activeJaringanId);
@@ -35,7 +37,6 @@ const StokJaringan = () => {
         };
     });
 
-    // Filter list by search term and status tab selection
     const filteredItems = stockItems.filter((item) => {
         const matchesSearch =
             item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -47,6 +48,15 @@ const StokJaringan = () => {
         if (filterStatus === 'EMPTY') return item.isEmpty;
         return true;
     });
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedData,
+        goToPage,
+        totalItems
+    } = usePagination(filteredItems, 10);
+
 
     return (
         <div className="space-y-6 font-sans">
@@ -119,7 +129,7 @@ const StokJaringan = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredItems.map((item) => (
+                            {paginatedData.map((item) => (
                                 <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="p-4 pl-6 font-semibold text-xs text-slate-500 tracking-wider">
                                         {item.kodeATC}
@@ -175,7 +185,7 @@ const StokJaringan = () => {
                                 </tr>
                             ))}
 
-                            {filteredItems.length === 0 && (
+                            {paginatedData.length === 0 && (
                                 <tr>
                                     <td colSpan={7} className="text-center py-12 text-slate-400 italic text-sm">
                                         Tidak ada data obat yang cocok dengan kriteria filter
@@ -186,6 +196,12 @@ const StokJaringan = () => {
                     </table>
                 </div>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                totalItems={totalItems}
+            />
 
             {/* Kartu Stok Modal */}
             {selectedObatId && (

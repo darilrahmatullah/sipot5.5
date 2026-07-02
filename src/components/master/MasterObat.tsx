@@ -4,6 +4,8 @@ import { useMasterStore } from '../../stores/masterStore';
 import type { MasterObat as IMasterObat, Unit } from '../../types';
 import Modal from '../common/Modal';
 import BulkImportModal from '../common/BulkImportModal';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const MasterObat = () => {
     const { obat, addObat, bulkAddObat, updateObat, deleteObat } = useMasterStore();
@@ -26,6 +28,15 @@ const MasterObat = () => {
         o.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
         o.kodeATC.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedObat,
+        goToPage,
+        totalItems
+    } = usePagination(filteredObat, 10);
+
 
     const handleOpenAdd = () => {
         setEditingObat(null);
@@ -123,7 +134,7 @@ const MasterObat = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {filteredObat.map((o: IMasterObat) => (
+                            {paginatedObat.map((o: IMasterObat) => (
                                 <tr key={o.id} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="px-6 py-4 font-mono text-sm text-blue-600 bg-blue-50/30 font-semibold">{o.kodeATC}</td>
                                     <td className="px-6 py-4 font-semibold text-slate-800">{o.nama}</td>
@@ -154,7 +165,7 @@ const MasterObat = () => {
                                     </td>
                                 </tr>
                             ))}
-                            {filteredObat.length === 0 && (
+                            {paginatedObat.length === 0 && (
                                 <tr>
                                     <td colSpan={6} className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center gap-2 opacity-40">
@@ -167,6 +178,12 @@ const MasterObat = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                    totalItems={totalItems}
+                />
             </div>
 
             <Modal

@@ -4,6 +4,8 @@ import { useMasterStore } from '../../stores/masterStore';
 import type { MasterPenyedia as IMasterPenyedia } from '../../types';
 import Modal from '../common/Modal';
 import BulkImportModal from '../common/BulkImportModal';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const MasterPenyedia = () => {
     const { penyedia, addPenyedia, bulkAddPenyedia, updatePenyedia, deletePenyedia } = useMasterStore();
@@ -19,6 +21,14 @@ const MasterPenyedia = () => {
     });
 
     const filtered = penyedia.filter((p: IMasterPenyedia) => p.nama.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedData,
+        goToPage,
+        totalItems
+    } = usePagination(filtered, 10);
 
     const handleOpenAdd = () => {
         setEditingPenyedia(null);
@@ -87,7 +97,7 @@ const MasterPenyedia = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {filtered.map((p: IMasterPenyedia) => (
+                        {paginatedData.map((p: IMasterPenyedia) => (
                             <tr key={p.id} className="hover:bg-slate-50/50">
                                 <td className="px-6 py-4 font-semibold">{p.nama}</td>
                                 <td className="px-6 py-4 text-slate-600">{p.kontak || '-'}</td>
@@ -104,7 +114,7 @@ const MasterPenyedia = () => {
                                 </td>
                             </tr>
                         ))}
-                        {filtered.length === 0 && (
+                        {paginatedData.length === 0 && (
                             <tr>
                                 <td colSpan={4} className="px-6 py-20 text-center opacity-30">
                                     <Truck className="w-12 h-12 mx-auto mb-2" />
@@ -115,6 +125,12 @@ const MasterPenyedia = () => {
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                totalItems={totalItems}
+            />
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingPenyedia ? 'Edit Penyedia' : 'Tambah Penyedia'}>
                 <form onSubmit={handleSubmit} className="space-y-4">

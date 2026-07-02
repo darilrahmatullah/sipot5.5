@@ -3,6 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { FileText, Printer } from 'lucide-react';
 import { useMasterStore } from '../../stores/masterStore';
 import { useTransactionStore } from '../../stores/transactionStore';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const LPLPOJaringan = () => {
     const activeJaringanId = useMasterStore((state) => state.activeJaringanId);
@@ -82,6 +84,15 @@ const LPLPOJaringan = () => {
             stokAkhir
         };
     }).filter(row => row.stokAwal > 0 || row.penerimaan > 0 || row.pemakaian > 0); // Only show drugs with activity or stock
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedData,
+        goToPage,
+        totalItems
+    } = usePagination(lplpoRows, 10);
+
 
     const handlePrint = () => {
         window.print();
@@ -180,9 +191,9 @@ const LPLPOJaringan = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 print:divide-y print:divide-slate-200">
-                            {lplpoRows.map((row, index) => (
+                            {paginatedData.map((row, index) => (
                                 <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="p-3 pl-6 font-medium text-slate-500">{index + 1}</td>
+                                    <td className="p-3 pl-6 font-medium text-slate-500">{index + 1 + (currentPage - 1) * 10}</td>
                                     <td className="p-3 font-semibold text-slate-500 tracking-wider">{row.kodeATC}</td>
                                     <td className="p-3 font-bold text-slate-800">{row.nama}</td>
                                     <td className="p-3 text-slate-600">{row.satuan}</td>
@@ -194,7 +205,7 @@ const LPLPOJaringan = () => {
                                 </tr>
                             ))}
 
-                            {lplpoRows.length === 0 && (
+                            {paginatedData.length === 0 && (
                                 <tr>
                                     <td colSpan={9} className="text-center py-12 text-slate-400 italic text-sm">
                                         Tidak ada aktivitas transaksi atau stok obat pada periode yang dipilih
@@ -204,6 +215,15 @@ const LPLPOJaringan = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+            
+            <div className="print:hidden">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                    totalItems={totalItems}
+                />
             </div>
 
             {/* Signature Area for Printing */}

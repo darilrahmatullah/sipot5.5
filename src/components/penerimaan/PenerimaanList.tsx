@@ -5,6 +5,8 @@ import { useMasterStore } from '../../stores/masterStore';
 import type { Penerimaan, UploadedDocument, MasterObat, MasterPenyedia } from '../../types';
 import Modal from '../common/Modal';
 import FileUpload from '../common/FileUpload';
+import { usePagination } from '../../hooks/usePagination';
+import Pagination from '../common/Pagination';
 
 const PenerimaanList = () => {
     const { penerimaan, addPenerimaan, deletePenerimaan } = useTransactionStore();
@@ -28,6 +30,15 @@ const PenerimaanList = () => {
         const o = obat.find((ob: MasterObat) => ob.id === p.obatId);
         return o?.nama.toLowerCase().includes(searchTerm.toLowerCase()) || p.batchNumber.toLowerCase().includes(searchTerm.toLowerCase());
     });
+
+    const {
+        currentPage,
+        totalPages,
+        currentData: paginatedData,
+        goToPage,
+        totalItems
+    } = usePagination(filtered, 10);
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -91,7 +102,7 @@ const PenerimaanList = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {filtered.map((p: Penerimaan) => {
+                        {paginatedData.map((p: Penerimaan) => {
                             const o = obat.find((ob: MasterObat) => ob.id === p.obatId);
                             const s = penyedia.find((py: MasterPenyedia) => py.id === p.penyediaId);
                             const isExpiredSoon = new Date(p.tanggalED) < new Date(new Date().setMonth(new Date().getMonth() + 6));
@@ -134,7 +145,7 @@ const PenerimaanList = () => {
                                 </tr>
                             );
                         })}
-                        {filtered.length === 0 && (
+                        {paginatedData.length === 0 && (
                             <tr>
                                 <td colSpan={6} className="px-6 py-20 text-center opacity-30">
                                     <FileDown className="w-12 h-12 mx-auto mb-2" />
@@ -145,6 +156,12 @@ const PenerimaanList = () => {
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                totalItems={totalItems}
+            />
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Tambah Penerimaan Baru" maxWidth="4xl">
                 <form onSubmit={handleSubmit} className="space-y-5">
