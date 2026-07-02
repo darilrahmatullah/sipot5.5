@@ -12,7 +12,7 @@ const StokJaringan = () => {
     const jaringan = useMasterStore((state) => state.jaringan);
     const obat = useMasterStore((state) => state.obat);
 
-    const { getNetworkStock } = useTransactionStore();
+    const { getNetworkStockList } = useTransactionStore();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'ALL' | 'LOW' | 'EMPTY'>('ALL');
@@ -24,18 +24,17 @@ const StokJaringan = () => {
 
     const currentJaringan = jaringan.find((j) => j.id === activeJaringanId);
 
-    // Calculate current stock for each master drug in this network unit
-    const stockItems = obat.map((o) => {
-        const currentStock = getNetworkStock(activeJaringanId, o.id);
-        const isLow = currentStock > 0 && currentStock <= o.stokMinimum;
-        const isEmpty = currentStock === 0;
-        return {
-            ...o,
-            currentStock,
-            isLow,
-            isEmpty
-        };
-    });
+    // Hanya tampilkan obat yang sudah pernah didistribusikan ke unit ini
+    const networkStockList = getNetworkStockList(activeJaringanId);
+    const stockItems = networkStockList
+        .map(({ obatId, currentStock }) => {
+            const o = obat.find(ob => ob.id === obatId);
+            if (!o) return null;
+            const isLow = currentStock > 0 && currentStock <= o.stokMinimum;
+            const isEmpty = currentStock === 0;
+            return { ...o, currentStock, isLow, isEmpty };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const filteredItems = stockItems.filter((item) => {
         const matchesSearch =
@@ -65,7 +64,7 @@ const StokJaringan = () => {
                     Stok Obat Lokal Unit ({currentJaringan?.nama})
                 </h1>
                 <p className="text-slate-500 mt-1">
-                    Daftar inventaris obat riil di unit {currentJaringan?.nama} (kalkulasi distribusi masuk dan penjualan kasir)
+                    Inventaris obat unit {currentJaringan?.nama} — hanya obat yang telah dialokasikan/didistribusikan dari Gudang Pusat
                 </p>
             </div>
 
